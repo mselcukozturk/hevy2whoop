@@ -1114,7 +1114,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /tmp/hevy2whoop-e2e-E7jQJH/tool/mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /home/selcuk/.hermes/cache/scratch/hevy2whoop-e2e-b4PQ2v/tool/mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -2459,7 +2459,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /tmp/hevy2whoop-e2e-E7jQJH/broken-mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /home/selcuk/.hermes/cache/scratch/hevy2whoop-e2e-b4PQ2v/broken-mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [
             "/v1/workouts?page=1&pageSize=10"
           ],

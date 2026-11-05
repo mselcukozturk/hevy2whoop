@@ -12,7 +12,9 @@
     "mapping.json",
     "AGENT_INSTALLATION.md",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "llms-install.md",
+    "assets/icon-400.png"
   ],
   "scripts": {
     "test": "node test/e2e.mjs"
