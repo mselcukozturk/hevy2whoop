@@ -15,6 +15,18 @@ done by [totem](https://github.com/thebriangao/totem), an MCP server by Brian Ga
 > account only. hevy2whoop runs on your computer; your Hevy key and WHOOP
 > tokens are sent only to Hevy and WHOOP.
 
+## Setting up with an AI agent
+
+Give your agent (Claude Code, Codex, Cursor, ...) this message:
+
+> Install hevy2whoop for me by following
+> https://raw.githubusercontent.com/mselcukozturk/hevy2whoop/main/AGENT_INSTALLATION.md
+
+[AGENT_INSTALLATION.md](AGENT_INSTALLATION.md) takes the agent through each
+step with a check, maps your unmapped exercises with you, and registers the
+MCP server in your client. It tells the agent to leave the WHOOP sign-in to
+you and to write to WHOOP only after you approve a preview.
+
 ## What it does
 
 1. Reads your latest Hevy workout, or every workout in a date range, from the
