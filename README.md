@@ -102,6 +102,12 @@ Claude Code:
 claude mcp add hevy2whoop -e HEVY_API_KEY=your-hevy-api-key -- node /path/to/hevy2whoop/hevy2whoop.mjs mcp
 ```
 
+After the npm release, no local clone is needed:
+
+```bash
+claude mcp add hevy2whoop -e HEVY_API_KEY=your-hevy-api-key -- npx -y hevy2whoop mcp
+```
+
 Claude Desktop, Cursor and other clients (`claude_desktop_config.json` or the
 client's MCP settings):
 

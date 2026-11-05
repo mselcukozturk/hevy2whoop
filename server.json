@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.mselcukozturk/hevy2whoop",
+  "description": "Copy Hevy strength workouts into WHOOP Strength Trainer sets with reps and weight",
+  "version": "1.1.0",
+  "websiteUrl": "https://github.com/mselcukozturk/hevy2whoop",
+  "repository": {
+    "url": "https://github.com/mselcukozturk/hevy2whoop",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "hevy2whoop",
+      "version": "1.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "HEVY_API_KEY",
+          "description": "Hevy API key (Hevy Pro required)",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "HEVY2WHOOP_MAPPING",
+          "description": "Optional path to a custom exercise mapping JSON file",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}
