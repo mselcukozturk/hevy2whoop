@@ -1,0 +1,593 @@
+{
+  "99D5F10E": {
+    "hevy": "Ab Wheel",
+    "whoop": [
+      "KNEESROLLOUTS_BARBELL"
+    ],
+    "approximate": true,
+    "note": "no ab wheel entry; 'Kneeling Rollouts' has the same pattern (catalog equipment: stability ball)"
+  },
+  "A05C064D": {
+    "hevy": "Back Extension (Machine)",
+    "whoop": [
+      "BACKEXTENSION_GLUTEHAMMACHINE"
+    ],
+    "approximate": true,
+    "note": "seated lever machine; the catalog entry is a GHD / hyperextension bench"
+  },
+  "091737FA": {
+    "hevy": "Back Extension (Weighted Hyperextension)",
+    "whoop": [
+      "BACKEXTENSION_GLUTEHAMMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "2DBCA395": {
+    "hevy": "Behind the Back Curl (Cable)",
+    "whoop": [
+      "BICEPCURL_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no behind-the-back (one-arm) cable curl; two-sided cable curl"
+  },
+  "79D0BB3A": {
+    "hevy": "Bench Press (Barbell)",
+    "whoop": [
+      "BENCHPRESS_BARBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "55E6546F": {
+    "hevy": "Bent Over Row (Barbell)",
+    "whoop": [
+      "BENTOVERROW_BARBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "A5AC6449": {
+    "hevy": "Bicep Curl (Barbell)",
+    "whoop": [
+      "BICEPCURL_BARBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "ADA8623C": {
+    "hevy": "Bicep Curl (Cable)",
+    "whoop": [
+      "BICEPCURL_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "37FCC2BB": {
+    "hevy": "Bicep Curl (Dumbbell)",
+    "whoop": [
+      "BICEPCURL_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "AF328E3D": {
+    "hevy": "Bicep Curl (Machine)",
+    "whoop": [
+      "PREACHER_CURL_MACHINE"
+    ],
+    "approximate": true,
+    "note": "no generic machine curl; the only machine curl in the catalog is preacher"
+  },
+  "9DCE2D64": {
+    "hevy": "Butterfly (Pec Deck)",
+    "whoop": [
+      "CHESTFLY_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "91237BDD": {
+    "hevy": "Calf Press (Machine)",
+    "whoop": [
+      "STANDINGCALFRAISE_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no sled calf press; standing machine calf raise is the closest entry"
+  },
+  "7EB3F7C3": {
+    "hevy": "Chest Press (Machine)",
+    "whoop": [
+      "BENCHPRESS_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "29083183": {
+    "hevy": "Chin Up",
+    "whoop": [
+      "UNDERHANDGRIPPULLUPS"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "EB43ADD4": {
+    "hevy": "Crunch (Machine)",
+    "whoop": [
+      "CRUNCHES_BODYWEIGHT"
+    ],
+    "approximate": true,
+    "note": "the catalog has no machine crunch (REVERSE_CRUNCH_MACHINE is a different movement)"
+  },
+  "B9380898": {
+    "hevy": "Dead Hang",
+    "whoop": [],
+    "approximate": false,
+    "note": "no catalog entry for dead hang or isometric holds; not logged"
+  },
+  "BC10A922": {
+    "hevy": "Decline Crunch",
+    "whoop": [
+      "CRUNCHES_BODYWEIGHT"
+    ],
+    "approximate": true,
+    "note": "no decline crunch entry; flat crunch"
+  },
+  "F1E57334": {
+    "hevy": "Dumbbell Row",
+    "whoop": [
+      "BENTOVERROW_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": "the Hevy template image shows a two-arm bent-over row; for one-arm rows use ONEARMROWLEFT/RIGHT_DUMBBELL"
+  },
+  "36E8F14E": {
+    "hevy": "Hammer Curl (Cable)",
+    "whoop": [
+      "BICEPCURL_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no cable hammer curl; cable curl on the same equipment (alternative: HAMMERCURL_DUMBBELL)"
+  },
+  "08590920": {
+    "hevy": "Hanging Knee Raise",
+    "whoop": [
+      "HANGINGKNEERAISE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "F4B4C6EE": {
+    "hevy": "Hip Abduction (Machine)",
+    "whoop": [
+      "GLUTEABDUCTOR_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "8BEBFED6": {
+    "hevy": "Hip Adduction (Machine)",
+    "whoop": [
+      "GROINADDUCTOR_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "50DFDFAB": {
+    "hevy": "Incline Bench Press (Barbell)",
+    "whoop": [
+      "INCLINEBENCHPRESS_BARBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "3A6FA3D1": {
+    "hevy": "Incline Bench Press (Smith Machine)",
+    "whoop": [
+      "INCLINEDBENCHPRESS_SMITHMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "FBF92739": {
+    "hevy": "Incline Chest Press (Machine)",
+    "whoop": [
+      "INCLINEDBENCHPRESS_SMITHMACHINE"
+    ],
+    "approximate": true,
+    "note": "no incline machine press; Smith incline (alternative: BENCHPRESS_PULLEYMACHINE)"
+  },
+  "91FAFBA3": {
+    "hevy": "Iso-Lateral Low Row",
+    "whoop": [
+      "SEATEDROW_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "plate-loaded low row; machine seated row is the closest entry"
+  },
+  "98237BA2": {
+    "hevy": "Knee Raise Parallel Bars",
+    "whoop": [
+      "HANGINGKNEERAISE"
+    ],
+    "approximate": true,
+    "note": "no parallel bars (captain's chair) entry; hanging knee raise is the closest"
+  },
+  "6A6C31A5": {
+    "hevy": "Lat Pulldown (Cable)",
+    "whoop": [
+      "LATPULLDOWNFRONT_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "473CF5B8": {
+    "hevy": "Lat Pulldown (Machine)",
+    "whoop": [
+      "LATPULLDOWNFRONT_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "422B08F1": {
+    "hevy": "Lateral Raise (Dumbbell)",
+    "whoop": [
+      "LATERALRAISE_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "D5D0354D": {
+    "hevy": "Lateral Raise (Machine)",
+    "whoop": [
+      "LATERALRAISE_DUMBBELL"
+    ],
+    "approximate": true,
+    "note": "no machine lateral raise; two-sided dumbbell entry"
+  },
+  "75A4F6C4": {
+    "hevy": "Leg Extension (Machine)",
+    "whoop": [
+      "SEATEDLEGEXTENSION_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "0EB695C9": {
+    "hevy": "Leg Press Horizontal (Machine)",
+    "whoop": [
+      "LEGPRESS_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "B8127AD1": {
+    "hevy": "Lying Leg Curl (Machine)",
+    "whoop": [
+      "PRONELEGCURL_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "7B8D84E8": {
+    "hevy": "Overhead Press (Barbell)",
+    "whoop": [
+      "OVERHEADPRESS_BARBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "B5EFBF9C": {
+    "hevy": "Overhead Triceps Extension (Cable)",
+    "whoop": [
+      "TRICEPPUSHDOWN_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no cable overhead triceps extension; pushdown on the same equipment (alternative: STANDINGTRICEPEXTENSION_DUMBBELL)"
+  },
+  "C6C9B8A0": {
+    "hevy": "Plank",
+    "whoop": [
+      "FRONTPLANKELBOW"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "4F942934": {
+    "hevy": "Preacher Curl (Barbell)",
+    "whoop": [
+      "PREACHERCURL_EZCURLBAR"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "FAB6EB2F": {
+    "hevy": "Preacher Curl (Dumbbell)",
+    "whoop": [
+      "PREACHERCURL_EZCURLBAR"
+    ],
+    "approximate": true,
+    "note": "no dumbbell preacher curl; bar preacher curl"
+  },
+  "1E9A6B8E": {
+    "hevy": "Preacher Curl (Machine)",
+    "whoop": [
+      "PREACHER_CURL_MACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "1B2B1E7C": {
+    "hevy": "Pull Up",
+    "whoop": [
+      "OVERHANDGRIPPULLUPS"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "729237D1": {
+    "hevy": "Pull Up (Weighted)",
+    "whoop": [
+      "OVERHANDGRIPPULLUPS"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "392887AA": {
+    "hevy": "Push Up",
+    "whoop": [
+      "PUSHUP_CLASSIC"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "D8281C62": {
+    "hevy": "Rear Delt Reverse Fly (Machine)",
+    "whoop": [
+      "REVERSECHESTFLY_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "7952B5CD": {
+    "hevy": "Reverse Crunch",
+    "whoop": [
+      "SUPINE_LEG_LIFTS"
+    ],
+    "approximate": true,
+    "note": "no bodyweight reverse crunch; supine leg lifts (alternative: REVERSE_CRUNCH_MACHINE)"
+  },
+  "D8460FA6": {
+    "hevy": "Reverse Wrist Curl (Dumbbell)",
+    "whoop": [
+      "REVERSECURLS_BARBELL"
+    ],
+    "approximate": true,
+    "note": "no wrist curl entry; reverse curl trains the same forearm extensors"
+  },
+  "2B4B7310": {
+    "hevy": "Romanian Deadlift (Barbell)",
+    "whoop": [
+      "ROMANIANDEADLIFT_BARBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "72CFFAD5": {
+    "hevy": "Romanian Deadlift (Dumbbell)",
+    "whoop": [
+      "ROMANIANDEADLIFT_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "0B9B92BA": {
+    "hevy": "Romanian Deadlift (Smith Machine)",
+    "whoop": [
+      "SMITH_MACHINE_ROMANIAN_DEADLIFT"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "0393F233": {
+    "hevy": "Seated Cable Row - V Grip (Cable)",
+    "whoop": [
+      "SEATEDROW_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "062AB91A": {
+    "hevy": "Seated Calf Raise",
+    "whoop": [
+      "SEATEDCALFRAISE_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "5122E7D9": {
+    "hevy": "Seated Dip Machine",
+    "whoop": [
+      "TRICEPDIP_DIPBAR"
+    ],
+    "approximate": true,
+    "note": "no machine dip; bodyweight dip"
+  },
+  "11A123F3": {
+    "hevy": "Seated Leg Curl (Machine)",
+    "whoop": [
+      "SEATEDLEGCURL_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "1DF4A847": {
+    "hevy": "Seated Row (Machine)",
+    "whoop": [
+      "SEATEDROW_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "9237BAD1": {
+    "hevy": "Seated Shoulder Press (Machine)",
+    "whoop": [
+      "OVERHEADPRESS_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "878CD1D0": {
+    "hevy": "Shoulder Press (Dumbbell)",
+    "whoop": [
+      "SEATEDMILITARYPRESS_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "059E835D": {
+    "hevy": "Shoulder Press (Machine Plates)",
+    "whoop": [
+      "OVERHEADPRESS_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "ABEC557F": {
+    "hevy": "Shrug (Dumbbell)",
+    "whoop": [
+      "SHRUGS_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "E3EDA509": {
+    "hevy": "Side Plank",
+    "whoop": [
+      "SIDEPLANKELBOWLEFT",
+      "SIDEPLANKELBOWRIGHT"
+    ],
+    "approximate": false,
+    "note": "only a left/right pair exists; it is unclear whether a Hevy set covers one side or both"
+  },
+  "DE68C825": {
+    "hevy": "Single Arm Lateral Raise (Cable)",
+    "whoop": [
+      "LATERALRAISELEFT_PULLEYMACHINE",
+      "LATERALRAISERIGHT_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": "the catalog has no two-sided cable lateral raise; every set is written to both sides"
+  },
+  "552AB030": {
+    "hevy": "Single Arm Triceps Pushdown (Cable)",
+    "whoop": [
+      "TRICEPPUSHDOWN_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no left/right entry for single-arm cable pushdown; two-sided entry, weight is per arm"
+  },
+  "CBC0D834": {
+    "hevy": "Single Leg Glute Bridge",
+    "whoop": [
+      "LYINGSINGLELEGBRIDGELEFT",
+      "LYINGSINGLELEGBRIDGERIGHT"
+    ],
+    "approximate": false,
+    "note": "only a left/right pair exists; the catalog marks the RIGHT entry's laterality as LEFT"
+  },
+  "937292AB": {
+    "hevy": "Single Leg Romanian Deadlift (Dumbbell)",
+    "whoop": [
+      "ALTERNATINGSINGLELEGROMANIANDEADLIFT_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": "single ALTERNATING entry; Hevy reps are per leg, Whoop may count total reps (a LEFT/RIGHT pair also exists)"
+  },
+  "238BA231": {
+    "hevy": "Single Leg Standing Calf Raise",
+    "whoop": [
+      "STANDINGCALFRAISE_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no single-leg or bodyweight calf raise; two-sided machine entry"
+  },
+  "5DA40761": {
+    "hevy": "Single Leg Standing Calf Raise (Dumbbell)",
+    "whoop": [
+      "STANDINGCALFRAISE_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no single-leg or dumbbell calf raise; two-sided machine entry"
+  },
+  "DCFF3E9F": {
+    "hevy": "Squat (Dumbbell)",
+    "whoop": [
+      "SQUAT_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "6DA40660": {
+    "hevy": "Standing Calf Raise (Dumbbell)",
+    "whoop": [
+      "STANDINGCALFRAISE_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no dumbbell calf raise; standing machine calf raise"
+  },
+  "75BAC5C3": {
+    "hevy": "Toe Touch",
+    "whoop": [
+      "CRUNCHES_BODYWEIGHT"
+    ],
+    "approximate": true,
+    "note": "no toe touch entry; crunch is the closest"
+  },
+  "21310F5F": {
+    "hevy": "Triceps Extension (Cable)",
+    "whoop": [
+      "TRICEPPUSHDOWN_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "3765684D": {
+    "hevy": "Triceps Extension (Dumbbell)",
+    "whoop": [
+      "STANDINGTRICEPEXTENSION_DUMBBELL"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "3092FADD": {
+    "hevy": "Triceps Extension (Machine)",
+    "whoop": [
+      "TRICEPPUSHDOWN_PULLEYMACHINE"
+    ],
+    "approximate": true,
+    "note": "no lever triceps machine; cable pushdown is the closest entry"
+  },
+  "93A552C6": {
+    "hevy": "Triceps Pushdown",
+    "whoop": [
+      "TRICEPPUSHDOWN_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "72880C57": {
+    "hevy": "Vertical Traction (Machine)",
+    "whoop": [
+      "LATPULLDOWNFRONT_PULLEYMACHINE"
+    ],
+    "approximate": false,
+    "note": ""
+  },
+  "79EF4E4F": {
+    "hevy": "Warm Up",
+    "whoop": [],
+    "approximate": false,
+    "note": "not logged"
+  }
+}

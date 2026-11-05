@@ -1,0 +1,16 @@
+{
+  "name": "hevy2whoop",
+  "version": "1.0.0",
+  "description": "Copy Hevy strength workouts into WHOOP Strength Trainer",
+  "type": "module",
+  "bin": {
+    "hevy2whoop": "./hevy2whoop.mjs"
+  },
+  "scripts": {
+    "test": "node test/e2e.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "MIT"
+}

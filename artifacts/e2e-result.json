@@ -1,0 +1,1164 @@
+{
+  "node": "v24.22.0",
+  "passed": 15,
+  "failed": 0,
+  "scenarios": [
+    {
+      "id": "F1",
+      "description": "HEVY_API_KEY not set",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1",
+          "passed": true
+        },
+        {
+          "label": "message names HEVY_API_KEY",
+          "passed": true
+        },
+        {
+          "label": "Hevy and WHOOP not contacted",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "HEVY_API_KEY is not set. Generate a key at https://hevy.com/settings?developer\n",
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "description": "Hevy API returns 401 or 500",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1 on 401",
+          "passed": true
+        },
+        {
+          "label": "message shows 401",
+          "passed": true
+        },
+        {
+          "label": "WHOOP not contacted on 401",
+          "passed": true
+        },
+        {
+          "label": "exit 1 on 500",
+          "passed": true
+        },
+        {
+          "label": "message shows 500",
+          "passed": true
+        },
+        {
+          "label": "WHOOP not contacted on 500",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "Hevy API error: 401 Unauthorized\n",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "Hevy API error: 500 Internal Server Error\n",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "description": "No workout, or none in range",
+      "passed": true,
+      "checks": [
+        {
+          "label": "empty account: exit 0 with message",
+          "passed": true
+        },
+        {
+          "label": "empty range: exit 0 with message",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 0,
+          "stdout": "No Hevy workout found.\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync",
+            "--from",
+            "2026-01-01",
+            "--to",
+            "2026-01-31"
+          ],
+          "code": 0,
+          "stdout": "No Hevy workout found.\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "description": "totem not installed",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1",
+          "passed": true
+        },
+        {
+          "label": "installation instructions shown",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "totem is not installed. Run: npm install -g @thebriangao/totem && totem auth\n",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "description": "WHOOP token expired",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1",
+          "passed": true
+        },
+        {
+          "label": "WHOOP error and `totem auth` hint shown",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  error: whoop_workouts: {\"error\":\"WHOOP API 401 Unauthorized\"} Run `totem auth` to sign in to WHOOP again.\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F6",
+      "description": "Workout already in WHOOP; repeated --write is idempotent",
+      "passed": true,
+      "checks": [
+        {
+          "label": "existing activity reported",
+          "passed": true
+        },
+        {
+          "label": "log tool not called",
+          "passed": true
+        },
+        {
+          "label": "first run writes",
+          "passed": true
+        },
+        {
+          "label": "second run finds the written activity",
+          "passed": true
+        },
+        {
+          "label": "exactly one write across both runs",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity existing-1\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "existing-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:01:00.000Z",
+              "end": "2026-10-30T15:58:30.000Z"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  written: activity activity-2 (1 exercises, 2 sets)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "other-sport",
+              "sport_name": "running",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            },
+            {
+              "id": "activity-2",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity activity-2\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10",
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "other-sport",
+              "sport_name": "running",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            },
+            {
+              "id": "activity-2",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F7 F8 F11 F12 F13",
+      "description": "Unmapped, skipped, two-sided, warm-up and bodyweight sets",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 0",
+          "passed": true
+        },
+        {
+          "label": "F7 unmapped exercise reported with template ID",
+          "passed": true
+        },
+        {
+          "label": "F8 skipped exercise reported",
+          "passed": true
+        },
+        {
+          "label": "F7 F11 mapped exercises written, side plank to both sides",
+          "passed": true
+        },
+        {
+          "label": "F12 warm-up set excluded",
+          "passed": true
+        },
+        {
+          "label": "F13 set without reps sends reps 0 and no weight",
+          "passed": true
+        },
+        {
+          "label": "F13 bodyweight set has no weight",
+          "passed": true
+        },
+        {
+          "label": "summary counts exercises and sets",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Mixed Day\n  unmapped: Cable Fly (template CABLEFLY)\n  skipped by mapping: Warm Up\n  written: activity activity-1 (4 exercises, 5 sets)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Mixed Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 720
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 720
+                      }
+                    ]
+                  },
+                  {
+                    "exercise_id": "SIDEPLANKELBOWLEFT",
+                    "sets": [
+                      {
+                        "reps": 0,
+                        "time_seconds": 720
+                      }
+                    ]
+                  },
+                  {
+                    "exercise_id": "SIDEPLANKELBOWRIGHT",
+                    "sets": [
+                      {
+                        "reps": 0,
+                        "time_seconds": 720
+                      }
+                    ]
+                  },
+                  {
+                    "exercise_id": "PUSHUP_CLASSIC",
+                    "sets": [
+                      {
+                        "reps": 15,
+                        "time_seconds": 720
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F9",
+      "description": "Nothing writable in the workout",
+      "passed": true,
+      "checks": [
+        {
+          "label": "nothing to write reported",
+          "passed": true
+        },
+        {
+          "label": "no WHOOP tool called",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Warm-up Only\n  unmapped: Cable Fly (template CABLEFLY)\n  skipped by mapping: Warm Up\n  nothing to write\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F10",
+      "description": "Mapping names an unknown WHOOP exercise ID",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1",
+          "passed": true
+        },
+        {
+          "label": "totem error shown",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 1,
+          "stdout": "\n2026-10-30 18:00–19:00  Broken Day\n  error: whoop_lift_log: {\"error\":\"Unknown exercise IDs\",\"unknown_exercises\":[\"NOT_A_WHOOP_EXERCISE\"]}\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Broken Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "NOT_A_WHOOP_EXERCISE",
+                    "sets": [
+                      {
+                        "reps": 10,
+                        "weight": 10,
+                        "time_seconds": 3600
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F14",
+      "description": "Preview without --write",
+      "passed": true,
+      "checks": [
+        {
+          "label": "preview reported",
+          "passed": true
+        },
+        {
+          "label": "log tool called only with confirm false",
+          "passed": true
+        },
+        {
+          "label": "no activity created",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  preview: would write 1 exercises, 2 sets (run with --write to write)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F15",
+      "description": "Invalid date arguments",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1 with usage for --from 2026-13-01 --to 2026-12-01",
+          "passed": true
+        },
+        {
+          "label": "Hevy not contacted for --from 2026-13-01 --to 2026-12-01",
+          "passed": true
+        },
+        {
+          "label": "exit 1 with usage for --from 2026-10-01",
+          "passed": true
+        },
+        {
+          "label": "Hevy not contacted for --from 2026-10-01",
+          "passed": true
+        },
+        {
+          "label": "exit 1 with usage for --from 2026-10-20 --to 2026-10-10",
+          "passed": true
+        },
+        {
+          "label": "Hevy not contacted for --from 2026-10-20 --to 2026-10-10",
+          "passed": true
+        },
+        {
+          "label": "exit 1 with usage for --since 2026-10-01",
+          "passed": true
+        },
+        {
+          "label": "Hevy not contacted for --since 2026-10-01",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--from",
+            "2026-13-01",
+            "--to",
+            "2026-12-01"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "Invalid date: 2026-13-01\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync",
+            "--from",
+            "2026-10-01"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "--from and --to must be given together.\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync",
+            "--from",
+            "2026-10-20",
+            "--to",
+            "2026-10-10"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "--from must not be later than --to.\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync",
+            "--since",
+            "2026-10-01"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "Unknown argument: --since\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F16",
+      "description": "Range across Hevy pages",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exactly the four workouts in range, oldest first",
+          "passed": true
+        },
+        {
+          "label": "reads pages 1 and 2, stops before page 3",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--from",
+            "2026-10-15",
+            "--to",
+            "2026-10-18"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-15 18:00–19:00  Day 15\n  preview: would write 1 exercises, 2 sets (run with --write to write)\n\n2026-10-16 18:00–19:00  Day 14\n  preview: would write 1 exercises, 2 sets (run with --write to write)\n\n2026-10-17 18:00–19:00  Day 13\n  preview: would write 1 exercises, 2 sets (run with --write to write)\n\n2026-10-18 18:00–19:00  Day 12\n  preview: would write 1 exercises, 2 sets (run with --write to write)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10",
+            "/v1/workouts?page=2&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-15T14:00:00.000Z",
+                "end": "2026-10-15T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Day 15",
+                "start": "2026-10-15T15:00:00.000Z",
+                "end": "2026-10-15T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-16T14:00:00.000Z",
+                "end": "2026-10-16T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Day 14",
+                "start": "2026-10-16T15:00:00.000Z",
+                "end": "2026-10-16T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-17T14:00:00.000Z",
+                "end": "2026-10-17T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Day 13",
+                "start": "2026-10-17T15:00:00.000Z",
+                "end": "2026-10-17T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-18T14:00:00.000Z",
+                "end": "2026-10-18T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Day 12",
+                "start": "2026-10-18T15:00:00.000Z",
+                "end": "2026-10-18T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F17",
+      "description": "One workout fails, the next is still written",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1",
+          "passed": true
+        },
+        {
+          "label": "failure of the first workout reported",
+          "passed": true
+        },
+        {
+          "label": "second workout written",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--from",
+            "2026-10-28",
+            "--to",
+            "2026-10-29",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "\n2026-10-28 18:00–19:00  First\n  error: whoop_lift_log: {\"error\":\"WHOOP API 500 Internal Server Error\"}\n\n2026-10-29 18:00–19:00  Second\n  written: activity activity-1 (1 exercises, 2 sets)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-28T14:00:00.000Z",
+                "end": "2026-10-28T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "First",
+                "start": "2026-10-28T15:00:00.000Z",
+                "end": "2026-10-28T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-29T14:00:00.000Z",
+                "end": "2026-10-29T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Second",
+                "start": "2026-10-29T15:00:00.000Z",
+                "end": "2026-10-29T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-29T15:00:00.000Z",
+              "end": "2026-10-29T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F18",
+      "description": "mapping.json is not valid JSON",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 1 naming mapping.json",
+          "passed": true
+        },
+        {
+          "label": "WHOOP not contacted",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-IF8HuB/tool/mapping.json: Unexpected end of JSON input\n",
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "C1",
+      "description": "catalog lists WHOOP exercise IDs",
+      "passed": true,
+      "checks": [
+        {
+          "label": "exit 0",
+          "passed": true
+        },
+        {
+          "label": "filtered ID list printed",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "catalog",
+            "plank"
+          ],
+          "code": 0,
+          "stdout": "SIDEPLANKELBOWLEFT\tName of SIDEPLANKELBOWLEFT\nSIDEPLANKELBOWRIGHT\tName of SIDEPLANKELBOWRIGHT\n",
+          "stderr": "",
+          "hevyRequests": [],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_lift_catalog",
+              "arguments": {
+                "search": "plank",
+                "limit": 372
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    }
+  ]
+}
