@@ -8,6 +8,7 @@ const save = state => fs.writeFileSync(stateFile, JSON.stringify(state, null, 2)
 
 const state = load();
 state.started = (state.started || 0) + 1;
+state.pids = [...(state.pids || []), process.pid];
 save(state);
 
 const reply = (id, result) => process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');

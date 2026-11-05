@@ -1,5 +1,5 @@
 // End-to-end run of hevy2whoop against a fake Hevy API and a fake totem MCP server.
-// Covers docs/failure-scenarios.md and writes artifacts/e2e-result.json.
+// Covers docs/failure-scenarios.md (CLI and MCP server) and writes artifacts/e2e-result.json.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -64,25 +64,57 @@ function prepare({ workouts = [], hevyStatus = 200, activities = [], mode = 'ok'
   fs.writeFileSync(stateFile, JSON.stringify({ activities, validIds: VALID_IDS, mode, failNames, calls: [], started: 0 }));
 }
 
-function run(args, { apiKey = API_KEY, totem = true } = {}) {
-  const env = {
+function environment({ apiKey = API_KEY, totem = true, extra = {} } = {}) {
+  return {
     PATH: totem ? `${binWithTotem}:${process.env.PATH}` : binWithoutTotem,
     HEVY_API_URL: `http://127.0.0.1:${server.address().port}`,
     FAKE_TOTEM_STATE: stateFile,
     TZ: 'Europe/Istanbul',
     ...(apiKey ? { HEVY_API_KEY: apiKey } : {}),
+    ...extra,
   };
+}
+
+const readTotemState = () => JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+
+function run(args, options) {
+  const env = environment(options);
   return new Promise(resolve => {
     const child = spawn(process.execPath, [path.join(toolDir, 'hevy2whoop.mjs'), ...args], { env });
     let stdout = '', stderr = '';
     child.stdout.on('data', chunk => { stdout += chunk; });
     child.stderr.on('data', chunk => { stderr += chunk; });
     child.on('close', code => {
-      const totemState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+      const totemState = readTotemState();
       resolve({ args, code, stdout, stderr, hevyRequests: [...hevy.requests], totemStarted: totemState.started, whoopCalls: totemState.calls, activities: totemState.activities });
     });
   });
 }
+
+// Sends the requests to `hevy2whoop mcp`, closes stdin and waits for the server to exit.
+function mcpSession(requests, options) {
+  return new Promise(resolve => {
+    const child = spawn(process.execPath, [path.join(toolDir, 'hevy2whoop.mjs'), 'mcp'], { env: environment(options) });
+    let stdout = '', stderr = '';
+    child.stdout.on('data', chunk => { stdout += chunk; });
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('close', code => {
+      const lines = stdout.split('\n').filter(Boolean);
+      const parsed = lines.map(line => { try { return JSON.parse(line); } catch { return null; } });
+      const totemState = readTotemState();
+      const aliveTotems = (totemState.pids || []).filter(pid => { try { process.kill(pid, 0); return true; } catch { return false; } });
+      const responses = Object.fromEntries(parsed.filter(Boolean).map(message => [message.id, message]));
+      resolve({ args: ['mcp'], requests, code, stdout, stderr, onlyJsonRpc: parsed.every(message => message?.jsonrpc === '2.0'), responses,
+        hevyRequests: [...hevy.requests], totemStarted: totemState.started, aliveTotems, whoopCalls: totemState.calls, activities: totemState.activities });
+    });
+    for (const request of requests) child.stdin.write(JSON.stringify({ jsonrpc: '2.0', ...request }) + '\n');
+    child.stdin.end();
+  });
+}
+const initialize = { id: 0, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'e2e', version: '0' } } };
+const initialized = { method: 'notifications/initialized' };
+const toolCall = (id, name, args) => ({ id, method: 'tools/call', params: { name, arguments: args } });
+const toolValue = response => JSON.parse(response.result.content[0].text);
 
 const logCalls = result => result.whoopCalls.filter(call => call.name === 'whoop_lift_log');
 const writes = result => logCalls(result).filter(call => call.arguments.confirm === true);
@@ -92,7 +124,11 @@ async function scenario(id, description, steps) {
   const checks = [];
   const expect = (condition, label) => checks.push({ label, passed: Boolean(condition) });
   try {
-    await steps({ run: async (...args) => { const result = await run(...args); runs.push(result); return result; }, expect });
+    await steps({
+      run: async (...args) => { const result = await run(...args); runs.push(result); return result; },
+      mcp: async (...args) => { const result = await mcpSession(...args); runs.push(result); return result; },
+      expect,
+    });
   } catch (error) {
     checks.push({ label: `no exception (${error.message})`, passed: false });
   }
@@ -244,6 +280,97 @@ await scenario('C1', 'catalog lists WHOOP exercise IDs', async ({ run, expect })
   const r = await run(['catalog', 'plank']);
   expect(r.code === 0, 'exit 0');
   expect(r.stdout === 'SIDEPLANKELBOWLEFT\tName of SIDEPLANKELBOWLEFT\nSIDEPLANKELBOWRIGHT\tName of SIDEPLANKELBOWRIGHT\n', 'filtered ID list printed');
+});
+
+await scenario('M1 M8 M10', 'MCP tools/list; stdout is JSON-RPC only; server exits on stdin close', async ({ mcp, expect }) => {
+  prepare({ workouts: [latest] });
+  const r = await mcp([initialize, initialized, { id: 1, method: 'tools/list' }, toolCall(2, 'hevy2whoop_sync', {})]);
+  expect(r.responses[0]?.result?.serverInfo?.name === 'hevy2whoop', 'initialize answered');
+  const tools = r.responses[1]?.result?.tools || [];
+  expect(JSON.stringify(tools.map(tool => tool.name)) === JSON.stringify(['hevy2whoop_sync', 'hevy2whoop_catalog']), 'M1 both tools listed');
+  expect(tools.every(tool => tool.inputSchema?.type === 'object'), 'M1 input schemas present');
+  expect(r.onlyJsonRpc, 'M8 every stdout line is a JSON-RPC message');
+  expect(r.code === 0, 'M10 server exits with code 0 after stdin closes');
+  expect(r.totemStarted === 1 && r.aliveTotems.length === 0, 'M10 no totem process left running');
+});
+
+await scenario('M2', 'MCP sync preview', async ({ mcp, expect }) => {
+  prepare({ workouts: [workout('w7', 'Preview Day', 0, [bench, exercise('CABLEFLY', 'Cable Fly', [set('normal', 20, 12)]), exercise('WARM', 'Warm Up', [set('normal', null, null)])])] });
+  const r = await mcp([initialize, toolCall(1, 'hevy2whoop_sync', {})]);
+  const result = toolValue(r.responses[1]).workouts[0];
+  expect(r.responses[1].result.isError === false, 'not an error');
+  expect(result?.status === 'preview' && result.exercise_count === 1 && result.set_count === 2, 'status preview with counts');
+  expect(JSON.stringify(result?.unmapped) === JSON.stringify([{ title: 'Cable Fly', template_id: 'CABLEFLY' }]), 'unmapped exercise listed');
+  expect(JSON.stringify(result?.skipped) === JSON.stringify(['Warm Up']), 'skipped exercise listed');
+  expect(writes(r).length === 0 && r.activities.length === 0, 'nothing written');
+});
+
+await scenario('M3', 'MCP sync with write, called twice', async ({ mcp, expect }) => {
+  prepare({ workouts: [latest] });
+  const r = await mcp([initialize, toolCall(1, 'hevy2whoop_sync', { write: true }), toolCall(2, 'hevy2whoop_sync', { write: true })]);
+  const first = toolValue(r.responses[1]).workouts[0];
+  const second = toolValue(r.responses[2]).workouts[0];
+  expect(first?.status === 'written' && first.activity_id === 'activity-1', 'first call writes');
+  expect(second?.status === 'already_in_whoop' && second.activity_id === 'activity-1', 'second call finds the activity');
+  expect(writes(r).length === 1, 'one write in total');
+});
+
+await scenario('M4', 'MCP sync where WHOOP fails for one workout', async ({ mcp, expect }) => {
+  prepare({ workouts: [workout('w9', 'Second', 1, [bench]), workout('w8', 'First', 2, [bench])], failNames: ['First'] });
+  const r = await mcp([initialize, toolCall(1, 'hevy2whoop_sync', { from: '2026-10-28', to: '2026-10-29', write: true }), { id: 2, method: 'ping' }]);
+  const [first, second] = toolValue(r.responses[1]).workouts;
+  expect(r.responses[1].result.isError === true, 'result marked isError');
+  expect(first?.status === 'error' && first.error.includes('500'), 'error of the first workout reported');
+  expect(second?.status === 'written', 'second workout written');
+  expect(r.responses[2]?.result !== undefined, 'server still answers');
+});
+
+await scenario('M5', 'MCP sync without HEVY_API_KEY or with invalid dates', async ({ mcp, expect }) => {
+  prepare({ workouts: [latest] });
+  const missingKey = await mcp([initialize, toolCall(1, 'hevy2whoop_sync', {})], { apiKey: null });
+  expect(missingKey.responses[1]?.result?.isError === true && missingKey.responses[1].result.content[0].text.includes('HEVY_API_KEY'), 'missing key reported');
+  const invalid = await mcp([initialize,
+    toolCall(1, 'hevy2whoop_sync', { from: '2026-10-20' }),
+    toolCall(2, 'hevy2whoop_sync', { from: '2026-10-20', to: '2026-10-10' }),
+    toolCall(3, 'hevy2whoop_sync', { from: 'yesterday', to: '2026-10-10' }),
+    toolCall(4, 'hevy2whoop_sync', { write: 'yes' })]);
+  expect([1, 2, 3, 4].every(id => invalid.responses[id]?.result?.isError === true), 'each invalid call returns isError');
+  expect(invalid.hevyRequests.length === 0, 'Hevy not contacted');
+});
+
+await scenario('M6', 'MCP catalog search', async ({ mcp, expect }) => {
+  prepare();
+  const r = await mcp([initialize, toolCall(1, 'hevy2whoop_catalog', { search: 'bench' })]);
+  expect(JSON.stringify(toolValue(r.responses[1]).exercises) === JSON.stringify([{ exercise_id: 'BENCHPRESS_BARBELL', name: 'Name of BENCHPRESS_BARBELL' }]), 'matching exercise returned');
+});
+
+await scenario('M7', 'MCP unknown tool and unknown method', async ({ mcp, expect }) => {
+  prepare();
+  const r = await mcp([initialize, toolCall(1, 'delete_everything', {}), { id: 2, method: 'resources/list' }, { id: 3, method: 'tools/list' }]);
+  expect(r.responses[1]?.error?.code === -32602, 'unknown tool returns JSON-RPC error');
+  expect(r.responses[2]?.error?.code === -32601, 'unknown method returns JSON-RPC error');
+  expect(r.responses[3]?.result?.tools?.length === 2, 'later request still answered');
+});
+
+await scenario('M9', 'User mapping file from HEVY2WHOOP_MAPPING', async ({ run, mcp, expect }) => {
+  const userMapping = path.join(work, 'my-mapping.json');
+  fs.writeFileSync(userMapping, JSON.stringify({
+    CABLEFLY: { hevy: 'Cable Fly', whoop: ['PUSHUP_CLASSIC'], approximate: true, note: 'test' },
+    BENCH: { hevy: 'Bench Press (Barbell)', whoop: [], approximate: false, note: 'replaced by user' },
+  }));
+  const day = workout('w10', 'User Mapping Day', 0, [bench, exercise('CABLEFLY', 'Cable Fly', [set('normal', 20, 12)])]);
+  prepare({ workouts: [day] });
+  const cli = await run(['sync', '--write'], { extra: { HEVY2WHOOP_MAPPING: userMapping } });
+  const payload = writes(cli)[0]?.arguments;
+  expect(JSON.stringify(payload?.exercises.map(e => e.exercise_id)) === JSON.stringify(['PUSHUP_CLASSIC']), 'CLI: user entry added, bundled entry replaced');
+  expect(cli.stdout.includes('skipped by mapping: Bench Press (Barbell)'), 'CLI: replaced entry skips bench');
+  prepare({ workouts: [day] });
+  const server = await mcp([initialize, toolCall(1, 'hevy2whoop_sync', {})], { extra: { HEVY2WHOOP_MAPPING: userMapping } });
+  expect(toolValue(server.responses[1]).workouts[0]?.unmapped.length === 0, 'MCP: user mapping applied');
+  const broken = path.join(work, 'broken-mapping.json');
+  fs.writeFileSync(broken, '[');
+  const bad = await run(['sync'], { extra: { HEVY2WHOOP_MAPPING: broken } });
+  expect(bad.code === 1 && bad.stderr.includes('broken-mapping.json'), 'invalid user file named in the error');
 });
 
 server.close();

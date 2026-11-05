@@ -27,6 +27,9 @@ done by [totem](https://github.com/thebriangao/totem), an MCP server by Brian Ga
    again, so repeated runs are safe.
 4. Shows a preview. With `--write`, it logs the workout to WHOOP.
 
+It runs as a command-line tool, or as an MCP server so that Claude or another
+MCP client can run the sync on request ("copy yesterday's workout to WHOOP").
+
 ## Requirements
 
 - Node.js 24 or later
@@ -70,6 +73,41 @@ Dates are in your local time zone and both ends are included. Example output:
 To sync automatically, run `node hevy2whoop.mjs sync --write` from cron or a
 systemd timer some time after your workout ends.
 
+## MCP server
+
+`node hevy2whoop.mjs mcp` runs an MCP server over stdio with two tools:
+
+| Tool | Arguments | Effect |
+|---|---|---|
+| `hevy2whoop_sync` | `from`, `to` (YYYY-MM-DD, optional), `write` (default `false`) | Same as `sync`. Returns one result per workout: `preview`, `written`, `already_in_whoop`, `nothing_to_write` or `error`, with unmapped and skipped exercises. |
+| `hevy2whoop_catalog` | `search` (optional) | Same as `catalog`. |
+
+The sync tool writes to WHOOP only when it is called with `write: true`.
+
+Claude Code:
+
+```bash
+claude mcp add hevy2whoop -e HEVY_API_KEY=your-hevy-api-key -- node /path/to/hevy2whoop/hevy2whoop.mjs mcp
+```
+
+Claude Desktop, Cursor and other clients (`claude_desktop_config.json` or the
+client's MCP settings):
+
+```json
+{
+  "mcpServers": {
+    "hevy2whoop": {
+      "command": "node",
+      "args": ["/path/to/hevy2whoop/hevy2whoop.mjs", "mcp"],
+      "env": { "HEVY_API_KEY": "your-hevy-api-key" }
+    }
+  }
+}
+```
+
+`totem` must be on the `PATH` the client gives to the server. If the client
+cannot find it, add `"PATH"` to `env`.
+
 ## Exercise mapping
 
 `mapping.json` is keyed by the Hevy `exercise_template_id`:
@@ -97,11 +135,24 @@ entries are approximate. Check the notes and change entries you disagree with.
 
 1. Run `sync`. Unmapped exercises are listed with their template ID.
 2. Find the WHOOP ID with `node hevy2whoop.mjs catalog <search>`.
-3. Add an entry to `mapping.json`, keeping the file sorted by `hevy` title.
+3. Add an entry to your own mapping file (below), or to `mapping.json` if the
+   exercise is one of Hevy's built-in exercises and you want to contribute it.
 
-Your own custom Hevy exercises have UUID template IDs (for example
-`0b7e5c2a-4d1f-...`). They exist only in your account, so keep those entries
-in your local copy and do not submit them.
+### Your own mapping file
+
+Set `HEVY2WHOOP_MAPPING` to the path of a JSON file in the same format. Its
+entries are added to `mapping.json`, and an entry with the same template ID
+replaces the bundled one. Use it for your custom Hevy exercises and for
+choices that differ from the bundled mapping; updating the repository then
+never conflicts with your changes.
+
+```bash
+export HEVY2WHOOP_MAPPING=~/.config/hevy2whoop/mapping.json
+```
+
+Custom Hevy exercises have UUID template IDs (for example `0b7e5c2a-4d1f-...`).
+They exist only in your account, so keep them in your own file and do not
+submit them.
 
 ### Contributing
 
@@ -126,8 +177,8 @@ the choice in `note` when the match is not exact.
 node test/e2e.mjs
 ```
 
-Runs the tool end to end against a fake Hevy API and a fake totem server,
-covering the cases in [docs/failure-scenarios.md](docs/failure-scenarios.md),
+Runs the command-line tool and the MCP server end to end against a fake Hevy
+API and a fake totem server, covering the cases in [docs/failure-scenarios.md](docs/failure-scenarios.md),
 and writes the result to `artifacts/e2e-result.json`. No real account is used.
 
 ## Credits

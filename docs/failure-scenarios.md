@@ -24,3 +24,20 @@ against a fake Hevy API and a fake `totem` MCP server.
 | F17 | Writing one workout fails while others succeed | The other workouts are still processed. Exit 1. |
 | F18 | `mapping.json` is not valid JSON | Exit 1 with the file name. |
 | F19 | totem does not answer a request | The request fails after 60 seconds with a timeout message. Not covered by the E2E run. |
+
+## MCP server (`hevy2whoop mcp`)
+
+Written before the MCP implementation.
+
+| # | Scenario | Required behaviour |
+|---|---|---|
+| M1 | Client calls `tools/list` | Returns `hevy2whoop_sync` and `hevy2whoop_catalog` with input schemas. |
+| M2 | `hevy2whoop_sync` without `write` | Preview only: WHOOP's log tool is called with `confirm: false`. The result lists each workout with its status, counts, unmapped and skipped exercises. |
+| M3 | `hevy2whoop_sync` with `write: true`, called twice | The first call writes; the second reports the workout as already in WHOOP. One write in total. |
+| M4 | WHOOP fails for a workout | The result reports the error for that workout and is marked `isError`. The server keeps running. |
+| M5 | `HEVY_API_KEY` missing, or invalid dates | The call returns `isError` with the message. Hevy is not contacted for invalid dates. |
+| M6 | `hevy2whoop_catalog` with a search | Returns the matching WHOOP exercise IDs and names. |
+| M7 | Unknown tool or unknown method | JSON-RPC error for that request. The server keeps answering later requests. |
+| M8 | Any request | stdout carries only JSON-RPC messages. |
+| M9 | `HEVY2WHOOP_MAPPING` points to a user mapping file | Its entries are added to the bundled mapping and replace bundled entries with the same template ID (CLI and MCP). An unreadable or invalid file stops the run with the file name. |
+| M10 | Client closes stdin | The server exits. No totem process is left running. |

@@ -1,6 +1,6 @@
 {
   "node": "v24.22.0",
-  "passed": 15,
+  "passed": 23,
   "failed": 0,
   "scenarios": [
     {
@@ -752,7 +752,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Invalid date: 2026-13-01\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "stderr": "Invalid date: 2026-13-01\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n  hevy2whoop mcp\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\nmcp      Runs an MCP server over stdio with the same two functions.\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -766,7 +766,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "--from and --to must be given together.\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "stderr": "--from and --to must be given together.\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n  hevy2whoop mcp\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\nmcp      Runs an MCP server over stdio with the same two functions.\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -782,7 +782,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "--from must not be later than --to.\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "stderr": "--from must not be later than --to.\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n  hevy2whoop mcp\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\nmcp      Runs an MCP server over stdio with the same two functions.\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -796,7 +796,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Unknown argument: --since\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\n",
+          "stderr": "Unknown argument: --since\n\nUsage:\n  hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]\n  hevy2whoop catalog [search]\n  hevy2whoop mcp\n\nsync     Without dates, takes the latest Hevy workout. Without --write, only previews.\ncatalog  Lists WHOOP exercise IDs for editing mapping.json.\nmcp      Runs an MCP server over stdio with the same two functions.\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -1114,7 +1114,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /tmp/hevy2whoop-e2e-IF8HuB/tool/mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-E7jQJH/tool/mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -1153,6 +1153,1345 @@
               "arguments": {
                 "search": "plank",
                 "limit": 372
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "M1 M8 M10",
+      "description": "MCP tools/list; stdout is JSON-RPC only; server exits on stdin close",
+      "passed": true,
+      "checks": [
+        {
+          "label": "initialize answered",
+          "passed": true
+        },
+        {
+          "label": "M1 both tools listed",
+          "passed": true
+        },
+        {
+          "label": "M1 input schemas present",
+          "passed": true
+        },
+        {
+          "label": "M8 every stdout line is a JSON-RPC message",
+          "passed": true
+        },
+        {
+          "label": "M10 server exits with code 0 after stdin closes",
+          "passed": true
+        },
+        {
+          "label": "M10 no totem process left running",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "method": "notifications/initialized"
+            },
+            {
+              "id": 1,
+              "method": "tools/list"
+            },
+            {
+              "id": 2,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {}
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"hevy2whoop_sync\",\"description\":\"Copy Hevy strength workouts into WHOOP Strength Trainer. Without from/to, takes the latest Hevy workout. Without write: true, only previews. With write: true, WRITES the workouts to WHOOP; workouts already in WHOOP are not written again. Reports exercises that have no entry in the exercise mapping.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"from\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\",\"description\":\"First local date (YYYY-MM-DD) of the range. Requires to.\"},\"to\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\",\"description\":\"Last local date (YYYY-MM-DD) of the range, included. Requires from.\"},\"write\":{\"type\":\"boolean\",\"default\":false,\"description\":\"true writes to WHOOP; false or missing only previews.\"}},\"additionalProperties\":false}},{\"name\":\"hevy2whoop_catalog\",\"description\":\"List WHOOP Strength Trainer exercise IDs and names, optionally filtered by a search text. Use it to find IDs for the exercise mapping.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"search\":{\"type\":\"string\",\"description\":\"Part of the exercise name or ID.\"}},\"additionalProperties\":false}}]}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"Push Day\\\",\\n      \\\"start\\\": \\\"2026-10-30T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-30T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"preview\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "tools": [
+                  {
+                    "name": "hevy2whoop_sync",
+                    "description": "Copy Hevy strength workouts into WHOOP Strength Trainer. Without from/to, takes the latest Hevy workout. Without write: true, only previews. With write: true, WRITES the workouts to WHOOP; workouts already in WHOOP are not written again. Reports exercises that have no entry in the exercise mapping.",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                          "description": "First local date (YYYY-MM-DD) of the range. Requires to."
+                        },
+                        "to": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                          "description": "Last local date (YYYY-MM-DD) of the range, included. Requires from."
+                        },
+                        "write": {
+                          "type": "boolean",
+                          "default": false,
+                          "description": "true writes to WHOOP; false or missing only previews."
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "hevy2whoop_catalog",
+                    "description": "List WHOOP Strength Trainer exercise IDs and names, optionally filtered by a search text. Use it to find IDs for the exercise mapping.",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "search": {
+                          "type": "string",
+                          "description": "Part of the exercise name or ID."
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ]
+              }
+            },
+            "2": {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"Push Day\",\n      \"start\": \"2026-10-30T15:00:00.000Z\",\n      \"end\": \"2026-10-30T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"preview\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          },
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "description": "MCP sync preview",
+      "passed": true,
+      "checks": [
+        {
+          "label": "not an error",
+          "passed": true
+        },
+        {
+          "label": "status preview with counts",
+          "passed": true
+        },
+        {
+          "label": "unmapped exercise listed",
+          "passed": true
+        },
+        {
+          "label": "skipped exercise listed",
+          "passed": true
+        },
+        {
+          "label": "nothing written",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {}
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"Preview Day\\\",\\n      \\\"start\\\": \\\"2026-10-30T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-30T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [\\n        {\\n          \\\"title\\\": \\\"Cable Fly\\\",\\n          \\\"template_id\\\": \\\"CABLEFLY\\\"\\n        }\\n      ],\\n      \\\"skipped\\\": [\\n        \\\"Warm Up\\\"\\n      ],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"preview\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"Preview Day\",\n      \"start\": \"2026-10-30T15:00:00.000Z\",\n      \"end\": \"2026-10-30T16:00:00.000Z\",\n      \"unmapped\": [\n        {\n          \"title\": \"Cable Fly\",\n          \"template_id\": \"CABLEFLY\"\n        }\n      ],\n      \"skipped\": [\n        \"Warm Up\"\n      ],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"preview\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          },
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Preview Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "description": "MCP sync with write, called twice",
+      "passed": true,
+      "checks": [
+        {
+          "label": "first call writes",
+          "passed": true
+        },
+        {
+          "label": "second call finds the activity",
+          "passed": true
+        },
+        {
+          "label": "one write in total",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "write": true
+                }
+              }
+            },
+            {
+              "id": 2,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "write": true
+                }
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"Push Day\\\",\\n      \\\"start\\\": \\\"2026-10-30T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-30T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"written\\\",\\n      \\\"activity_id\\\": \\\"activity-1\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"Push Day\\\",\\n      \\\"start\\\": \\\"2026-10-30T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-30T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"already_in_whoop\\\",\\n      \\\"activity_id\\\": \\\"activity-1\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"Push Day\",\n      \"start\": \"2026-10-30T15:00:00.000Z\",\n      \"end\": \"2026-10-30T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"written\",\n      \"activity_id\": \"activity-1\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            },
+            "2": {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"Push Day\",\n      \"start\": \"2026-10-30T15:00:00.000Z\",\n      \"end\": \"2026-10-30T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"already_in_whoop\",\n      \"activity_id\": \"activity-1\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          },
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10",
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "description": "MCP sync where WHOOP fails for one workout",
+      "passed": true,
+      "checks": [
+        {
+          "label": "result marked isError",
+          "passed": true
+        },
+        {
+          "label": "error of the first workout reported",
+          "passed": true
+        },
+        {
+          "label": "second workout written",
+          "passed": true
+        },
+        {
+          "label": "server still answers",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "from": "2026-10-28",
+                  "to": "2026-10-29",
+                  "write": true
+                }
+              }
+            },
+            {
+              "id": 2,
+              "method": "ping"
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"First\\\",\\n      \\\"start\\\": \\\"2026-10-28T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-28T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"error\\\",\\n      \\\"error\\\": \\\"whoop_lift_log: {\\\\\\\"error\\\\\\\":\\\\\\\"WHOOP API 500 Internal Server Error\\\\\\\"}\\\"\\n    },\\n    {\\n      \\\"title\\\": \\\"Second\\\",\\n      \\\"start\\\": \\\"2026-10-29T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-29T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"written\\\",\\n      \\\"activity_id\\\": \\\"activity-1\\\"\\n    }\\n  ]\\n}\"}],\"isError\":true}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"First\",\n      \"start\": \"2026-10-28T15:00:00.000Z\",\n      \"end\": \"2026-10-28T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"error\",\n      \"error\": \"whoop_lift_log: {\\\"error\\\":\\\"WHOOP API 500 Internal Server Error\\\"}\"\n    },\n    {\n      \"title\": \"Second\",\n      \"start\": \"2026-10-29T15:00:00.000Z\",\n      \"end\": \"2026-10-29T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"written\",\n      \"activity_id\": \"activity-1\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": true
+              }
+            },
+            "2": {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "result": {}
+            }
+          },
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-28T14:00:00.000Z",
+                "end": "2026-10-28T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "First",
+                "start": "2026-10-28T15:00:00.000Z",
+                "end": "2026-10-28T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-29T14:00:00.000Z",
+                "end": "2026-10-29T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Second",
+                "start": "2026-10-29T15:00:00.000Z",
+                "end": "2026-10-29T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-29T15:00:00.000Z",
+              "end": "2026-10-29T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "description": "MCP sync without HEVY_API_KEY or with invalid dates",
+      "passed": true,
+      "checks": [
+        {
+          "label": "missing key reported",
+          "passed": true
+        },
+        {
+          "label": "each invalid call returns isError",
+          "passed": true
+        },
+        {
+          "label": "Hevy not contacted",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {}
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"HEVY_API_KEY is not set. Generate a key at https://hevy.com/settings?developer\"}],\"isError\":true}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "HEVY_API_KEY is not set. Generate a key at https://hevy.com/settings?developer"
+                  }
+                ],
+                "isError": true
+              }
+            }
+          },
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "aliveTotems": [],
+          "whoopCalls": [],
+          "activities": []
+        },
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "from": "2026-10-20"
+                }
+              }
+            },
+            {
+              "id": 2,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "from": "2026-10-20",
+                  "to": "2026-10-10"
+                }
+              }
+            },
+            {
+              "id": 3,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "from": "yesterday",
+                  "to": "2026-10-10"
+                }
+              }
+            },
+            {
+              "id": 4,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "write": "yes"
+                }
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"--from and --to must be given together.\"}],\"isError\":true}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"--from must not be later than --to.\"}],\"isError\":true}}\n{\"jsonrpc\":\"2.0\",\"id\":3,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"Invalid date: yesterday\"}],\"isError\":true}}\n{\"jsonrpc\":\"2.0\",\"id\":4,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"write must be true or false.\"}],\"isError\":true}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "--from and --to must be given together."
+                  }
+                ],
+                "isError": true
+              }
+            },
+            "2": {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "--from must not be later than --to."
+                  }
+                ],
+                "isError": true
+              }
+            },
+            "3": {
+              "jsonrpc": "2.0",
+              "id": 3,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Invalid date: yesterday"
+                  }
+                ],
+                "isError": true
+              }
+            },
+            "4": {
+              "jsonrpc": "2.0",
+              "id": 4,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "write must be true or false."
+                  }
+                ],
+                "isError": true
+              }
+            }
+          },
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "aliveTotems": [],
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "M6",
+      "description": "MCP catalog search",
+      "passed": true,
+      "checks": [
+        {
+          "label": "matching exercise returned",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_catalog",
+                "arguments": {
+                  "search": "bench"
+                }
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"exercises\\\": [\\n    {\\n      \\\"exercise_id\\\": \\\"BENCHPRESS_BARBELL\\\",\\n      \\\"name\\\": \\\"Name of BENCHPRESS_BARBELL\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"exercises\": [\n    {\n      \"exercise_id\": \"BENCHPRESS_BARBELL\",\n      \"name\": \"Name of BENCHPRESS_BARBELL\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          },
+          "hevyRequests": [],
+          "totemStarted": 1,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_lift_catalog",
+              "arguments": {
+                "search": "bench",
+                "limit": 372
+              }
+            }
+          ],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "M7",
+      "description": "MCP unknown tool and unknown method",
+      "passed": true,
+      "checks": [
+        {
+          "label": "unknown tool returns JSON-RPC error",
+          "passed": true
+        },
+        {
+          "label": "unknown method returns JSON-RPC error",
+          "passed": true
+        },
+        {
+          "label": "later request still answered",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "delete_everything",
+                "arguments": {}
+              }
+            },
+            {
+              "id": 2,
+              "method": "resources/list"
+            },
+            {
+              "id": 3,
+              "method": "tools/list"
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32602,\"message\":\"Unknown tool: delete_everything\"}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"error\":{\"code\":-32601,\"message\":\"Method not found: resources/list\"}}\n{\"jsonrpc\":\"2.0\",\"id\":3,\"result\":{\"tools\":[{\"name\":\"hevy2whoop_sync\",\"description\":\"Copy Hevy strength workouts into WHOOP Strength Trainer. Without from/to, takes the latest Hevy workout. Without write: true, only previews. With write: true, WRITES the workouts to WHOOP; workouts already in WHOOP are not written again. Reports exercises that have no entry in the exercise mapping.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"from\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\",\"description\":\"First local date (YYYY-MM-DD) of the range. Requires to.\"},\"to\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\",\"description\":\"Last local date (YYYY-MM-DD) of the range, included. Requires from.\"},\"write\":{\"type\":\"boolean\",\"default\":false,\"description\":\"true writes to WHOOP; false or missing only previews.\"}},\"additionalProperties\":false}},{\"name\":\"hevy2whoop_catalog\",\"description\":\"List WHOOP Strength Trainer exercise IDs and names, optionally filtered by a search text. Use it to find IDs for the exercise mapping.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"search\":{\"type\":\"string\",\"description\":\"Part of the exercise name or ID.\"}},\"additionalProperties\":false}}]}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "error": {
+                "code": -32602,
+                "message": "Unknown tool: delete_everything"
+              }
+            },
+            "2": {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "error": {
+                "code": -32601,
+                "message": "Method not found: resources/list"
+              }
+            },
+            "3": {
+              "jsonrpc": "2.0",
+              "id": 3,
+              "result": {
+                "tools": [
+                  {
+                    "name": "hevy2whoop_sync",
+                    "description": "Copy Hevy strength workouts into WHOOP Strength Trainer. Without from/to, takes the latest Hevy workout. Without write: true, only previews. With write: true, WRITES the workouts to WHOOP; workouts already in WHOOP are not written again. Reports exercises that have no entry in the exercise mapping.",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                          "description": "First local date (YYYY-MM-DD) of the range. Requires to."
+                        },
+                        "to": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                          "description": "Last local date (YYYY-MM-DD) of the range, included. Requires from."
+                        },
+                        "write": {
+                          "type": "boolean",
+                          "default": false,
+                          "description": "true writes to WHOOP; false or missing only previews."
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "hevy2whoop_catalog",
+                    "description": "List WHOOP Strength Trainer exercise IDs and names, optionally filtered by a search text. Use it to find IDs for the exercise mapping.",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "search": {
+                          "type": "string",
+                          "description": "Part of the exercise name or ID."
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "hevyRequests": [],
+          "totemStarted": 0,
+          "aliveTotems": [],
+          "whoopCalls": [],
+          "activities": []
+        }
+      ]
+    },
+    {
+      "id": "M9",
+      "description": "User mapping file from HEVY2WHOOP_MAPPING",
+      "passed": true,
+      "checks": [
+        {
+          "label": "CLI: user entry added, bundled entry replaced",
+          "passed": true
+        },
+        {
+          "label": "CLI: replaced entry skips bench",
+          "passed": true
+        },
+        {
+          "label": "MCP: user mapping applied",
+          "passed": true
+        },
+        {
+          "label": "invalid user file named in the error",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  User Mapping Day\n  skipped by mapping: Bench Press (Barbell)\n  written: activity activity-1 (1 exercises, 1 sets)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "User Mapping Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "PUSHUP_CLASSIC",
+                    "sets": [
+                      {
+                        "reps": 12,
+                        "weight": 20,
+                        "time_seconds": 3600
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {}
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"User Mapping Day\\\",\\n      \\\"start\\\": \\\"2026-10-30T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-30T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [\\n        \\\"Bench Press (Barbell)\\\"\\n      ],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 1,\\n      \\\"status\\\": \\\"preview\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"User Mapping Day\",\n      \"start\": \"2026-10-30T15:00:00.000Z\",\n      \"end\": \"2026-10-30T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [\n        \"Bench Press (Barbell)\"\n      ],\n      \"exercise_count\": 1,\n      \"set_count\": 1,\n      \"status\": \"preview\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          },
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "User Mapping Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "PUSHUP_CLASSIC",
+                    "sets": [
+                      {
+                        "reps": 12,
+                        "weight": 20,
+                        "time_seconds": 3600
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
+              }
+            }
+          ],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync"
+          ],
+          "code": 1,
+          "stdout": "",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-E7jQJH/broken-mapping.json: Unexpected end of JSON input\n",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "User Mapping Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "PUSHUP_CLASSIC",
+                    "sets": [
+                      {
+                        "reps": 12,
+                        "weight": 20,
+                        "time_seconds": 3600
+                      }
+                    ]
+                  }
+                ],
+                "confirm": false
               }
             }
           ],

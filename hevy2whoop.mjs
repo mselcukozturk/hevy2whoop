@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // Copies Hevy strength workouts into WHOOP Strength Trainer.
 // Hevy is read through its official API; WHOOP is written through the totem MCP server.
+// Runs as a command-line tool or, with `hevy2whoop mcp`, as an MCP server over stdio.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+const VERSION = '1.1.0';
 const HEVY_API_URL = process.env.HEVY_API_URL || 'https://api.hevyapp.com';
 const MAPPING_FILE = fileURLToPath(new URL('./mapping.json', import.meta.url));
 const MATCH_TOLERANCE_MS = 2 * 60 * 1000;
@@ -13,9 +15,11 @@ const REQUEST_TIMEOUT_MS = 60 * 1000;
 const USAGE = `Usage:
   hevy2whoop sync [--from YYYY-MM-DD --to YYYY-MM-DD] [--write]
   hevy2whoop catalog [search]
+  hevy2whoop mcp
 
 sync     Without dates, takes the latest Hevy workout. Without --write, only previews.
-catalog  Lists WHOOP exercise IDs for editing mapping.json.`;
+catalog  Lists WHOOP exercise IDs for editing mapping.json.
+mcp      Runs an MCP server over stdio with the same two functions.`;
 
 class UsageError extends Error {}
 
@@ -34,17 +38,27 @@ function parseSyncArguments(args) {
     else if (args[i] === '--to') options.to = parseDate(args[++i], true);
     else throw new UsageError(`Unknown argument: ${args[i]}`);
   }
+  return checkRange(options);
+}
+
+function checkRange(options) {
   if (Boolean(options.from) !== Boolean(options.to)) throw new UsageError('--from and --to must be given together.');
   if (options.from && options.from > options.to) throw new UsageError('--from must not be later than --to.');
   return options;
 }
 
-function readMapping() {
+function readJson(file) {
   try {
-    return JSON.parse(fs.readFileSync(MAPPING_FILE, 'utf8'));
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
   } catch (error) {
-    throw new Error(`Cannot read ${MAPPING_FILE}: ${error.message}`);
+    throw new Error(`Cannot read ${file}: ${error.message}`);
   }
+}
+
+// Entries in the user's file (HEVY2WHOOP_MAPPING) add to and replace bundled entries.
+function readMapping() {
+  const mapping = readJson(MAPPING_FILE);
+  return process.env.HEVY2WHOOP_MAPPING ? { ...mapping, ...readJson(process.env.HEVY2WHOOP_MAPPING) } : mapping;
 }
 
 async function readHevyPage(page) {
@@ -127,7 +141,7 @@ function openWhoop() {
   const ready = request('initialize', {
     protocolVersion: '2025-06-18',
     capabilities: {},
-    clientInfo: { name: 'hevy2whoop', version: '1.0.0' },
+    clientInfo: { name: 'hevy2whoop', version: VERSION },
   }).then(() => server.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n'));
   return ready.then(() => ({
     call,
@@ -186,67 +200,169 @@ async function findExistingActivity(whoop, workout) {
     && Math.abs(new Date(activity.end).getTime() - end) <= MATCH_TOLERANCE_MS);
 }
 
-function formatPeriod(workout) {
-  const local = value => new Date(value).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
-  return `${local(workout.start_time)}–${local(workout.end_time).slice(11)}`;
-}
-
-async function sync(args) {
-  const options = parseSyncArguments(args);
+// Returns one result per workout, oldest first. Errors of single workouts are recorded, not thrown.
+async function syncWorkouts({ from, to, write }) {
   if (!process.env.HEVY_API_KEY) throw new Error('HEVY_API_KEY is not set. Generate a key at https://hevy.com/settings?developer');
   const mapping = readMapping();
-  const workouts = await readHevyWorkouts(options.from, options.to);
-  if (workouts.length === 0) {
-    console.log('No Hevy workout found.');
-    return 0;
-  }
+  const workouts = await readHevyWorkouts(from, to);
+  if (workouts.length === 0) return [];
 
   const whoop = await openWhoop();
-  let failed = false;
+  const results = [];
   try {
     for (const workout of workouts) {
-      console.log(`\n${formatPeriod(workout)}  ${workout.title}`);
       const { payload, unmapped, skipped } = buildLiftPayload(workout, mapping);
-      for (const item of unmapped) console.log(`  unmapped: ${item.title} (template ${item.template_id})`);
-      for (const title of skipped) console.log(`  skipped by mapping: ${title}`);
+      const result = { title: workout.title, start: workout.start_time, end: workout.end_time, unmapped, skipped };
+      results.push(result);
       if (!payload) {
-        console.log('  nothing to write');
+        result.status = 'nothing_to_write';
         continue;
       }
-      const setCount = payload.exercises.reduce((sum, exercise) => sum + exercise.sets.length, 0);
-      const summary = `${payload.exercises.length} exercises, ${setCount} sets`;
+      result.exercise_count = payload.exercises.length;
+      result.set_count = payload.exercises.reduce((sum, exercise) => sum + exercise.sets.length, 0);
       try {
         const existing = await findExistingActivity(whoop, workout);
         if (existing) {
-          console.log(`  already in WHOOP: activity ${existing.id}`);
-        } else if (!options.write) {
+          Object.assign(result, { status: 'already_in_whoop', activity_id: existing.id });
+        } else if (!write) {
           await whoop.call('whoop_lift_log', { ...payload, confirm: false });
-          console.log(`  preview: would write ${summary} (run with --write to write)`);
+          result.status = 'preview';
         } else {
           const receipt = await whoop.call('whoop_lift_log', { ...payload, confirm: true });
-          console.log(`  written: activity ${receipt.activity_id} (${summary})`);
+          Object.assign(result, { status: 'written', activity_id: receipt.activity_id });
         }
       } catch (error) {
-        failed = true;
-        console.log(`  error: ${error.message}`);
+        Object.assign(result, { status: 'error', error: error.message });
       }
     }
   } finally {
     whoop.close();
   }
-  return failed ? 1 : 0;
+  return results;
 }
 
-async function catalog(args) {
+async function readCatalog(search) {
   const whoop = await openWhoop();
   try {
-    const result = await whoop.call('whoop_lift_catalog', { ...(args[0] ? { search: args[0] } : {}), limit: 372 });
+    const result = await whoop.call('whoop_lift_catalog', { ...(search ? { search } : {}), limit: 372 });
     const exercises = Array.isArray(result) ? result : (result.exercises ?? []);
-    for (const exercise of exercises) console.log(`${exercise.exercise_id}\t${exercise.name}`);
-    return 0;
+    return exercises.map(exercise => ({ exercise_id: exercise.exercise_id, name: exercise.name }));
   } finally {
     whoop.close();
   }
+}
+
+function formatPeriod(result) {
+  const local = value => new Date(value).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
+  return `${local(result.start)}–${local(result.end).slice(11)}`;
+}
+
+async function sync(args) {
+  const results = await syncWorkouts(parseSyncArguments(args));
+  if (results.length === 0) console.log('No Hevy workout found.');
+  for (const result of results) {
+    console.log(`\n${formatPeriod(result)}  ${result.title}`);
+    for (const item of result.unmapped) console.log(`  unmapped: ${item.title} (template ${item.template_id})`);
+    for (const title of result.skipped) console.log(`  skipped by mapping: ${title}`);
+    const summary = `${result.exercise_count} exercises, ${result.set_count} sets`;
+    if (result.status === 'nothing_to_write') console.log('  nothing to write');
+    else if (result.status === 'already_in_whoop') console.log(`  already in WHOOP: activity ${result.activity_id}`);
+    else if (result.status === 'preview') console.log(`  preview: would write ${summary} (run with --write to write)`);
+    else if (result.status === 'written') console.log(`  written: activity ${result.activity_id} (${summary})`);
+    else console.log(`  error: ${result.error}`);
+  }
+  return results.some(result => result.status === 'error') ? 1 : 0;
+}
+
+async function catalog(args) {
+  for (const exercise of await readCatalog(args[0])) console.log(`${exercise.exercise_id}\t${exercise.name}`);
+  return 0;
+}
+
+const DATE_PROPERTY = { type: 'string', pattern: '^\\d{4}-\\d{2}-\\d{2}$' };
+const MCP_TOOLS = [
+  {
+    name: 'hevy2whoop_sync',
+    description: 'Copy Hevy strength workouts into WHOOP Strength Trainer. Without from/to, takes the latest Hevy workout. '
+      + 'Without write: true, only previews. With write: true, WRITES the workouts to WHOOP; workouts already in WHOOP are not written again. '
+      + 'Reports exercises that have no entry in the exercise mapping.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        from: { ...DATE_PROPERTY, description: 'First local date (YYYY-MM-DD) of the range. Requires to.' },
+        to: { ...DATE_PROPERTY, description: 'Last local date (YYYY-MM-DD) of the range, included. Requires from.' },
+        write: { type: 'boolean', default: false, description: 'true writes to WHOOP; false or missing only previews.' },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'hevy2whoop_catalog',
+    description: 'List WHOOP Strength Trainer exercise IDs and names, optionally filtered by a search text. Use it to find IDs for the exercise mapping.',
+    inputSchema: {
+      type: 'object',
+      properties: { search: { type: 'string', description: 'Part of the exercise name or ID.' } },
+      additionalProperties: false,
+    },
+  },
+];
+
+async function callMcpTool(name, args = {}) {
+  if (name === 'hevy2whoop_sync') {
+    if (args.write !== undefined && typeof args.write !== 'boolean') throw new UsageError('write must be true or false.');
+    const range = checkRange({
+      from: args.from === undefined ? undefined : parseDate(args.from, false),
+      to: args.to === undefined ? undefined : parseDate(args.to, true),
+    });
+    const results = await syncWorkouts({ ...range, write: args.write === true });
+    return { value: { workouts: results }, isError: results.some(result => result.status === 'error') };
+  }
+  return { value: { exercises: await readCatalog(args.search) }, isError: false };
+}
+
+async function handleMcpMessage(message) {
+  const respond = body => process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: message.id, ...body }) + '\n');
+  if (message.id === undefined) return;
+  if (message.method === 'initialize') {
+    return respond({ result: {
+      protocolVersion: '2025-06-18',
+      capabilities: { tools: {} },
+      serverInfo: { name: 'hevy2whoop', version: VERSION },
+    } });
+  }
+  if (message.method === 'ping') return respond({ result: {} });
+  if (message.method === 'tools/list') return respond({ result: { tools: MCP_TOOLS } });
+  if (message.method !== 'tools/call') return respond({ error: { code: -32601, message: `Method not found: ${message.method}` } });
+  const { name, arguments: args } = message.params || {};
+  if (!MCP_TOOLS.some(tool => tool.name === name)) return respond({ error: { code: -32602, message: `Unknown tool: ${name}` } });
+  try {
+    const { value, isError } = await callMcpTool(name, args);
+    respond({ result: { content: [{ type: 'text', text: JSON.stringify(value, null, 2) }], isError } });
+  } catch (error) {
+    respond({ result: { content: [{ type: 'text', text: error.message }], isError: true } });
+  }
+}
+
+// Requests are handled one at a time so that two sync calls cannot write the same workout.
+function serveMcp() {
+  let buffer = '', queue = Promise.resolve();
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', chunk => {
+    buffer += chunk;
+    let index;
+    while ((index = buffer.indexOf('\n')) >= 0) {
+      const line = buffer.slice(0, index).trim();
+      buffer = buffer.slice(index + 1);
+      if (!line) continue;
+      let message;
+      try { message = JSON.parse(line); } catch {
+        process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }) + '\n');
+        continue;
+      }
+      queue = queue.then(() => handleMcpMessage(message));
+    }
+  });
+  return new Promise(resolve => process.stdin.on('end', () => queue.then(() => resolve(0))));
 }
 
 async function main() {
@@ -254,6 +370,7 @@ async function main() {
   try {
     if (command === 'sync') return await sync(args);
     if (command === 'catalog') return await catalog(args);
+    if (command === 'mcp') return await serveMcp();
     throw new UsageError(command ? `Unknown command: ${command}` : 'No command given.');
   } catch (error) {
     console.error(error instanceof UsageError ? `${error.message}\n\n${USAGE}` : error.message);
