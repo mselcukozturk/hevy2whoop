@@ -1,5 +1,7 @@
 # hevy2whoop
 
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/mselcukozturk/hevy2whoop)
+
 Copies strength workouts you log in [Hevy](https://www.hevyapp.com/) into
 WHOOP Strength Trainer: every exercise and every working set, with reps and weight.
 WHOOP has no Hevy integration, so without this tool the sets have to be entered
