@@ -35,7 +35,7 @@ function callTool(name, args) {
     else {
       const id = `activity-${current.activities.length + 1}`;
       current.activities.push({ id, sport_name: 'weightlifting_msk', start: args.start, end: args.end });
-      result = text({ logged: true, activity_id: id });
+      result = current.mode === 'lost_receipt' ? text({error: 'Response lost after acceptance'}, true) : text({ logged: true, activity_id: id });
     }
   } else {
     result = text({ error: `Unknown tool ${name}` }, true);

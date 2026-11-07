@@ -1,6 +1,6 @@
 {
   "node": "v24.22.0",
-  "passed": 23,
+  "passed": 25,
   "failed": 0,
   "scenarios": [
     {
@@ -1114,7 +1114,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /home/selcuk/.hermes/cache/scratch/hevy2whoop-e2e-b4PQ2v/tool/mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-p6xuKI/tool/mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -2459,7 +2459,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /home/selcuk/.hermes/cache/scratch/hevy2whoop-e2e-b4PQ2v/broken-mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-p6xuKI/broken-mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [
             "/v1/workouts?page=1&pageSize=10"
           ],
@@ -2496,6 +2496,295 @@
             }
           ],
           "activities": []
+        }
+      ]
+    },
+    {
+      "id": "F19",
+      "description": "Concurrent writers reserve the same workout once",
+      "passed": true,
+      "checks": [
+        {
+          "label": "one remote write across processes",
+          "passed": true
+        },
+        {
+          "label": "one activity",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  written: activity activity-1 (1 exercises, 2 sets)\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10",
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity activity-1\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10",
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F20",
+      "description": "Lost receipt is reconciled without another write",
+      "passed": true,
+      "checks": [
+        {
+          "label": "accepted remote activity reconciled",
+          "passed": true
+        },
+        {
+          "label": "uncertain write not repeated",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  error: whoop_lift_log: {\"error\":\"Response lost after acceptance\"}\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 1,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity activity-1\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10",
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "activity-1",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
         }
       ]
     }

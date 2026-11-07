@@ -211,3 +211,12 @@ and writes the result to `artifacts/e2e-result.json`. No real account is used.
 ## License
 
 MIT
+
+### Concurrent writes and uncertain receipts
+
+A write reserves its Hevy workout ID in `~/.local/state/hevy2whoop/` before
+calling WHOOP. Concurrent processes cannot reserve the same workout twice.
+If the response is lost, the next run checks WHOOP first and uses the existing
+activity. If the result remains uncertain, it reports an error and preserves
+the reservation; it does not automatically create another activity.
+`npm test` covers concurrent processes and lost receipts with synthetic services.

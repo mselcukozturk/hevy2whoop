@@ -55,8 +55,11 @@ const toolDir = path.join(work, 'tool');
 fs.mkdirSync(toolDir);
 fs.copyFileSync(path.join(ROOT, 'hevy2whoop.mjs'), path.join(toolDir, 'hevy2whoop.mjs'));
 const stateFile = path.join(work, 'totem-state.json');
+const home = path.join(work, 'home');
 
 function prepare({ workouts = [], hevyStatus = 200, activities = [], mode = 'ok', failNames = [], mapping = JSON.stringify(MAPPING) } = {}) {
+  fs.rmSync(home, {recursive: true, force: true});
+  fs.mkdirSync(home);
   hevy.workouts = workouts;
   hevy.status = hevyStatus;
   hevy.requests = [];
@@ -70,6 +73,7 @@ function environment({ apiKey = API_KEY, totem = true, extra = {} } = {}) {
     HEVY_API_URL: `http://127.0.0.1:${server.address().port}`,
     FAKE_TOTEM_STATE: stateFile,
     TZ: 'Europe/Istanbul',
+    HOME: home,
     ...(apiKey ? { HEVY_API_KEY: apiKey } : {}),
     ...extra,
   };
@@ -371,6 +375,20 @@ await scenario('M9', 'User mapping file from HEVY2WHOOP_MAPPING', async ({ run, 
   fs.writeFileSync(broken, '[');
   const bad = await run(['sync'], { extra: { HEVY2WHOOP_MAPPING: broken } });
   expect(bad.code === 1 && bad.stderr.includes('broken-mapping.json'), 'invalid user file named in the error');
+});
+
+await scenario('F19', 'Concurrent writers reserve the same workout once', async ({ run, expect }) => {
+  prepare({ workouts: [latest] });
+  await Promise.all([run(['sync', '--write']), run(['sync', '--write'])]);
+  expect(readTotemState().calls.filter(c => c.name === 'whoop_lift_log' && c.arguments.confirm).length === 1, 'one remote write across processes');
+  expect(readTotemState().activities.length === 1, 'one activity');
+});
+await scenario('F20', 'Lost receipt is reconciled without another write', async ({ run, expect }) => {
+  prepare({ workouts: [latest], mode: 'lost_receipt' });
+  await run(['sync', '--write']);
+  const retry = await run(['sync', '--write']);
+  expect(retry.stdout.includes('already in WHOOP'), 'accepted remote activity reconciled');
+  expect(readTotemState().calls.filter(c => c.name === 'whoop_lift_log' && c.arguments.confirm).length === 1, 'uncertain write not repeated');
 });
 
 server.close();

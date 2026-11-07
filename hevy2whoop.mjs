@@ -4,6 +4,9 @@
 // Runs as a command-line tool or, with `hevy2whoop mcp`, as an MCP server over stdio.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
+import { homedir } from 'node:os';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const VERSION = '1.1.0';
@@ -228,7 +231,21 @@ async function syncWorkouts({ from, to, write }) {
           await whoop.call('whoop_lift_log', { ...payload, confirm: false });
           result.status = 'preview';
         } else {
+          const directory = path.join(homedir(), '.local', 'state', 'hevy2whoop');
+          fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
+          const identity = createHash('sha256').update(JSON.stringify([HEVY_API_URL, workout.id])).digest('hex');
+          const record = path.join(directory, identity + '.json');
+          try {
+            fs.writeFileSync(record, JSON.stringify({ status: 'reserved', workout_id: workout.id }), { flag: 'wx', mode: 0o600 });
+          } catch (error) {
+            if (error.code === 'EEXIST') throw new Error('A previous write is pending or unconfirmed; reconcile WHOOP before writing again.');
+            throw error;
+          }
           const receipt = await whoop.call('whoop_lift_log', { ...payload, confirm: true });
+          if (!receipt.activity_id) throw new Error('WHOOP did not return an activity ID; write remains unconfirmed.');
+          const temporary = record + '.' + process.pid + '.tmp';
+          fs.writeFileSync(temporary, JSON.stringify({ status: 'written', workout_id: workout.id, activity_id: receipt.activity_id }), { mode: 0o600 });
+          fs.renameSync(temporary, record);
           Object.assign(result, { status: 'written', activity_id: receipt.activity_id });
         }
       } catch (error) {
