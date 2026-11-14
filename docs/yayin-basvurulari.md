@@ -1,6 +1,6 @@
 # Yayın başvuruları için hazır metinler
 
-Bu dosya `~/arastirma/mcp-dizinleri/rapor.md` sırasına göre hazırlandı. Form açıldığında alanları
+Bu dosya `~/Documents/arastirma/mcp-dizinleri/rapor.md` sırasına göre hazırlandı. Form açıldığında alanları
 buradan kopyala. Hiçbir başvuru bu dosya yazıldığında gönderilmedi.
 
 ## Ortak alanlar
