@@ -40,4 +40,4 @@ Node.js 24 veya üstü gerekir. Önizleme varsayılandır; `--write` verilmedik�
 - Hermes işi: `/home/selcuk/.hermes/cron/jobs.json` içinde "Idman senkron bildirimi" (id `884672cd66b7`, `5 12,20 * * *`); `sync --write` çalıştırır ve anahtarı `~/.config/asistan/hevy.env` dosyasından yükler.
 - Skill: `/home/selcuk/.hermes/skills/asistan/saglik-takip/SKILL.md`.
 - systemd birimi (`/home/selcuk/asistan-runtime/units/*.service`): yok.
-- `/home/selcuk/asistan-runtime/projects.json`: yok.
+- `/home/selcuk/asistan-runtime/config/projects.json`: yok.
