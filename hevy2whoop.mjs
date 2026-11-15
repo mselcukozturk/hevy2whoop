@@ -223,6 +223,7 @@ async function syncWorkouts({ from, to, write }) {
       }
       result.exercise_count = payload.exercises.length;
       result.set_count = payload.exercises.reduce((sum, exercise) => sum + exercise.sets.length, 0);
+      let record = null;
       try {
         const existing = await findExistingActivity(whoop, workout);
         if (existing) {
@@ -234,7 +235,7 @@ async function syncWorkouts({ from, to, write }) {
           const directory = path.join(homedir(), '.local', 'state', 'hevy2whoop');
           fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
           const identity = createHash('sha256').update(JSON.stringify([HEVY_API_URL, workout.id])).digest('hex');
-          const record = path.join(directory, identity + '.json');
+          record = path.join(directory, identity + '.json');
           try {
             fs.writeFileSync(record, JSON.stringify({ status: 'reserved', workout_id: workout.id }), { flag: 'wx', mode: 0o600 });
           } catch (error) {
@@ -249,6 +250,19 @@ async function syncWorkouts({ from, to, write }) {
           Object.assign(result, { status: 'written', activity_id: receipt.activity_id });
         }
       } catch (error) {
+        // Yazma denemesi başarısızsa rezervasyon kaydı silinir; yoksa sonraki koşular
+        // "A previous write is pending" ile kilitlenip kalıyordu.
+        if (record) fs.rmSync(record, { force: true });
+        // 409, aynı aralıkta WHOOP tarafında bir aktivite olduğunu gösterir; feed birkaç
+        // saniye geciktiği için ilk arama boş dönebiliyor. Bekleyip yeniden aranır.
+        if (/\b409\b/.test(error.message)) {
+          await new Promise(resolve => setTimeout(resolve, 10000));
+          const again = await findExistingActivity(whoop, workout).catch(() => null);
+          if (again) {
+            Object.assign(result, { status: 'already_in_whoop', activity_id: again.id });
+            continue;
+          }
+        }
         Object.assign(result, { status: 'error', error: error.message });
       }
     }
