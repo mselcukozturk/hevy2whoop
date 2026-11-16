@@ -391,6 +391,37 @@ await scenario('F20', 'Lost receipt is reconciled without another write', async 
   expect(readTotemState().calls.filter(c => c.name === 'whoop_lift_log' && c.arguments.confirm).length === 1, 'uncertain write not repeated');
 });
 
+await scenario('F21', '409 retry bypasses the empty list cached by the first totem session', async ({ run, mcp, expect }) => {
+  for (const transport of ['cli', 'mcp']) {
+    prepare({ workouts: [latest], mode: 'conflict_cached' });
+    const r = transport === 'cli'
+      ? await run(['sync', '--write'])
+      : await mcp([initialize, initialized, toolCall(1, 'hevy2whoop_sync', { write: true })]);
+    if (transport === 'cli') {
+      expect(r.code === 0 && r.stdout.includes('already in WHOOP: activity concurrent-activity'), 'CLI reports the existing activity');
+    } else {
+      const response = r.responses[1];
+      const entry = toolValue(response).workouts[0];
+      expect(!response.result.isError && entry.status === 'already_in_whoop' && entry.activity_id === 'concurrent-activity', 'MCP reports the existing activity');
+      expect(r.aliveTotems.length === 0, 'MCP leaves no totem process running');
+    }
+    expect(r.totemStarted === 2, `${transport} refreshes the totem session once`);
+    expect(r.whoopCalls.filter(call => call.name === 'whoop_workouts').length === 2, `${transport} performs one initial read and one reconciliation read`);
+    expect(writes(r).length === 1 && r.activities.length === 1, `${transport} does not retry the conflicting write`);
+  }
+});
+
+await scenario('F22 F23', '409 remains an error without a matching Strength Trainer activity', async ({ run, expect }) => {
+  for (const mode of ['conflict_missing', 'conflict_other_sport']) {
+    prepare({ workouts: [latest], mode });
+    const r = await run(['sync', '--write']);
+    expect(r.code === 1 && r.stdout.includes('error: whoop_lift_log:') && r.stdout.includes('409'), `${mode}: conflict remains an error`);
+    expect(!r.stdout.includes('already in WHOOP'), `${mode}: no false success`);
+    expect(writes(r).length === 1, `${mode}: no second write`);
+    expect(r.activities.length === (mode === 'conflict_missing' ? 0 : 1), `${mode}: no duplicate activity`);
+  }
+});
+
 server.close();
 fs.rmSync(work, { recursive: true, force: true });
 const passed = results.filter(result => result.passed).length;

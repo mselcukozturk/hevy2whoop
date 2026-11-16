@@ -11,6 +11,8 @@ state.started = (state.started || 0) + 1;
 state.pids = [...(state.pids || []), process.pid];
 save(state);
 
+let cachedActivities;
+
 const reply = (id, result) => process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
 const text = (value, isError = false) => ({ content: [{ type: 'text', text: JSON.stringify(value) }], ...(isError ? { isError: true } : {}) });
 
@@ -22,7 +24,8 @@ function callTool(name, args) {
     result = text({ error: 'WHOOP API 401 Unauthorized' }, true);
   } else if (name === 'whoop_workouts') {
     const start = new Date(args.start), end = new Date(args.end);
-    result = text({ workouts: current.activities.filter(a => new Date(a.start) >= start && new Date(a.start) <= end) });
+    if (current.mode.startsWith('conflict_')) cachedActivities ??= [...current.activities];
+    result = text({ workouts: (cachedActivities ?? current.activities).filter(a => new Date(a.start) >= start && new Date(a.start) <= end) });
   } else if (name === 'whoop_lift_catalog') {
     result = text({ exercises: current.validIds
       .filter(id => !args.search || id.toLowerCase().includes(args.search.toLowerCase()))
@@ -32,7 +35,14 @@ function callTool(name, args) {
     if (unknown.length) result = text({ error: 'Unknown exercise IDs', unknown_exercises: unknown }, true);
     else if (current.failNames.includes(args.name)) result = text({ error: 'WHOOP API 500 Internal Server Error' }, true);
     else if (!args.confirm) result = text({ preview: true });
-    else {
+    else if (current.mode.startsWith('conflict_')) {
+      if (current.mode !== 'conflict_missing') current.activities.push({
+        id: 'concurrent-activity',
+        sport_name: current.mode === 'conflict_other_sport' ? 'running' : 'weightlifting_msk',
+        start: args.start, end: args.end,
+      });
+      result = text({ error: 'Whoop API error 409 on /weightlifting-service/v2/weightlifting-workout/activity' }, true);
+    } else {
       const id = `activity-${current.activities.length + 1}`;
       current.activities.push({ id, sport_name: 'weightlifting_msk', start: args.start, end: args.end });
       result = current.mode === 'lost_receipt' ? text({error: 'Response lost after acceptance'}, true) : text({ logged: true, activity_id: id });

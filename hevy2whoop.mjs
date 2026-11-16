@@ -210,7 +210,7 @@ async function syncWorkouts({ from, to, write }) {
   const workouts = await readHevyWorkouts(from, to);
   if (workouts.length === 0) return [];
 
-  const whoop = await openWhoop();
+  let whoop = await openWhoop();
   const results = [];
   try {
     for (const workout of workouts) {
@@ -253,10 +253,12 @@ async function syncWorkouts({ from, to, write }) {
         // Yazma denemesi başarısızsa rezervasyon kaydı silinir; yoksa sonraki koşular
         // "A previous write is pending" ile kilitlenip kalıyordu.
         if (record) fs.rmSync(record, { force: true });
-        // 409, aynı aralıkta WHOOP tarafında bir aktivite olduğunu gösterir; feed birkaç
-        // saniye geciktiği için ilk arama boş dönebiliyor. Bekleyip yeniden aranır.
+        // Eşzamanlı yazım 409 döndürebilir. Totem ilk boş listeyi önbellekte tuttuğu
+        // için bekledikten sonra yeni oturumla mevcut aktivite aranır.
         if (/\b409\b/.test(error.message)) {
+          whoop.close();
           await new Promise(resolve => setTimeout(resolve, 10000));
+          whoop = await openWhoop();
           const again = await findExistingActivity(whoop, workout).catch(() => null);
           if (again) {
             Object.assign(result, { status: 'already_in_whoop', activity_id: again.id });

@@ -1,6 +1,6 @@
 {
   "node": "v24.22.0",
-  "passed": 25,
+  "passed": 27,
   "failed": 0,
   "scenarios": [
     {
@@ -1114,7 +1114,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /tmp/hevy2whoop-e2e-p6xuKI/tool/mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-Mk2RKh/tool/mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [],
           "totemStarted": 0,
           "whoopCalls": [],
@@ -2459,7 +2459,7 @@
           ],
           "code": 1,
           "stdout": "",
-          "stderr": "Cannot read /tmp/hevy2whoop-e2e-p6xuKI/broken-mapping.json: Unexpected end of JSON input\n",
+          "stderr": "Cannot read /tmp/hevy2whoop-e2e-Mk2RKh/broken-mapping.json: Unexpected end of JSON input\n",
           "hevyRequests": [
             "/v1/workouts?page=1&pageSize=10"
           ],
@@ -2520,7 +2520,7 @@
             "--write"
           ],
           "code": 0,
-          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  written: activity activity-1 (1 exercises, 2 sets)\n",
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity activity-1\n",
           "stderr": "",
           "hevyRequests": [
             "/v1/workouts?page=1&pageSize=10",
@@ -2586,7 +2586,7 @@
             "--write"
           ],
           "code": 0,
-          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity activity-1\n",
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  written: activity activity-1 (1 exercises, 2 sets)\n",
           "stderr": "",
           "hevyRequests": [
             "/v1/workouts?page=1&pageSize=10",
@@ -2781,6 +2781,402 @@
             {
               "id": "activity-1",
               "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F21",
+      "description": "409 retry bypasses the empty list cached by the first totem session",
+      "passed": true,
+      "checks": [
+        {
+          "label": "CLI reports the existing activity",
+          "passed": true
+        },
+        {
+          "label": "cli refreshes the totem session once",
+          "passed": true
+        },
+        {
+          "label": "cli performs one initial read and one reconciliation read",
+          "passed": true
+        },
+        {
+          "label": "cli does not retry the conflicting write",
+          "passed": true
+        },
+        {
+          "label": "MCP reports the existing activity",
+          "passed": true
+        },
+        {
+          "label": "MCP leaves no totem process running",
+          "passed": true
+        },
+        {
+          "label": "mcp refreshes the totem session once",
+          "passed": true
+        },
+        {
+          "label": "mcp performs one initial read and one reconciliation read",
+          "passed": true
+        },
+        {
+          "label": "mcp does not retry the conflicting write",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 0,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  already in WHOOP: activity concurrent-activity\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "concurrent-activity",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "args": [
+            "mcp"
+          ],
+          "requests": [
+            {
+              "id": 0,
+              "method": "initialize",
+              "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                  "name": "e2e",
+                  "version": "0"
+                }
+              }
+            },
+            {
+              "method": "notifications/initialized"
+            },
+            {
+              "id": 1,
+              "method": "tools/call",
+              "params": {
+                "name": "hevy2whoop_sync",
+                "arguments": {
+                  "write": true
+                }
+              }
+            }
+          ],
+          "code": 0,
+          "stdout": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"hevy2whoop\",\"version\":\"1.1.0\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"workouts\\\": [\\n    {\\n      \\\"title\\\": \\\"Push Day\\\",\\n      \\\"start\\\": \\\"2026-10-30T15:00:00.000Z\\\",\\n      \\\"end\\\": \\\"2026-10-30T16:00:00.000Z\\\",\\n      \\\"unmapped\\\": [],\\n      \\\"skipped\\\": [],\\n      \\\"exercise_count\\\": 1,\\n      \\\"set_count\\\": 2,\\n      \\\"status\\\": \\\"already_in_whoop\\\",\\n      \\\"activity_id\\\": \\\"concurrent-activity\\\"\\n    }\\n  ]\\n}\"}],\"isError\":false}}\n",
+          "stderr": "",
+          "onlyJsonRpc": true,
+          "responses": {
+            "0": {
+              "jsonrpc": "2.0",
+              "id": 0,
+              "result": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "hevy2whoop",
+                  "version": "1.1.0"
+                }
+              }
+            },
+            "1": {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\n  \"workouts\": [\n    {\n      \"title\": \"Push Day\",\n      \"start\": \"2026-10-30T15:00:00.000Z\",\n      \"end\": \"2026-10-30T16:00:00.000Z\",\n      \"unmapped\": [],\n      \"skipped\": [],\n      \"exercise_count\": 1,\n      \"set_count\": 2,\n      \"status\": \"already_in_whoop\",\n      \"activity_id\": \"concurrent-activity\"\n    }\n  ]\n}"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          },
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "aliveTotems": [],
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "concurrent-activity",
+              "sport_name": "weightlifting_msk",
+              "start": "2026-10-30T15:00:00.000Z",
+              "end": "2026-10-30T16:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F22 F23",
+      "description": "409 remains an error without a matching Strength Trainer activity",
+      "passed": true,
+      "checks": [
+        {
+          "label": "conflict_missing: conflict remains an error",
+          "passed": true
+        },
+        {
+          "label": "conflict_missing: no false success",
+          "passed": true
+        },
+        {
+          "label": "conflict_missing: no second write",
+          "passed": true
+        },
+        {
+          "label": "conflict_missing: no duplicate activity",
+          "passed": true
+        },
+        {
+          "label": "conflict_other_sport: conflict remains an error",
+          "passed": true
+        },
+        {
+          "label": "conflict_other_sport: no false success",
+          "passed": true
+        },
+        {
+          "label": "conflict_other_sport: no second write",
+          "passed": true
+        },
+        {
+          "label": "conflict_other_sport: no duplicate activity",
+          "passed": true
+        }
+      ],
+      "runs": [
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  error: whoop_lift_log: {\"error\":\"Whoop API error 409 on /weightlifting-service/v2/weightlifting-workout/activity\"}\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": []
+        },
+        {
+          "args": [
+            "sync",
+            "--write"
+          ],
+          "code": 1,
+          "stdout": "\n2026-10-30 18:00–19:00  Push Day\n  error: whoop_lift_log: {\"error\":\"Whoop API error 409 on /weightlifting-service/v2/weightlifting-workout/activity\"}\n",
+          "stderr": "",
+          "hevyRequests": [
+            "/v1/workouts?page=1&pageSize=10"
+          ],
+          "totemStarted": 2,
+          "whoopCalls": [
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            },
+            {
+              "name": "whoop_lift_log",
+              "arguments": {
+                "name": "Push Day",
+                "start": "2026-10-30T15:00:00.000Z",
+                "end": "2026-10-30T16:00:00.000Z",
+                "exercises": [
+                  {
+                    "exercise_id": "BENCHPRESS_BARBELL",
+                    "sets": [
+                      {
+                        "reps": 8,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      },
+                      {
+                        "reps": 6,
+                        "weight": 80,
+                        "time_seconds": 1800
+                      }
+                    ]
+                  }
+                ],
+                "confirm": true
+              }
+            },
+            {
+              "name": "whoop_workouts",
+              "arguments": {
+                "start": "2026-10-30T14:00:00.000Z",
+                "end": "2026-10-30T17:00:00.000Z",
+                "limit": 25
+              }
+            }
+          ],
+          "activities": [
+            {
+              "id": "concurrent-activity",
+              "sport_name": "running",
               "start": "2026-10-30T15:00:00.000Z",
               "end": "2026-10-30T16:00:00.000Z"
             }

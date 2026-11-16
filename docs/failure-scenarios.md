@@ -41,3 +41,13 @@ Written before the MCP implementation.
 | M8 | Any request | stdout carries only JSON-RPC messages. |
 | M9 | `HEVY2WHOOP_MAPPING` points to a user mapping file | Its entries are added to the bundled mapping and replace bundled entries with the same template ID (CLI and MCP). An unreadable or invalid file stops the run with the file name. |
 | M10 | Client closes stdin | The server exits. No totem process is left running. |
+
+## Conflict reconciliation (2026-11-16)
+
+Defined before the fix and exercised through real CLI and MCP child processes.
+
+| # | Scenario | Required behaviour |
+|---|---|---|
+| F21 | Another writer creates the matching Strength Trainer activity after the first read; the write returns 409 and the original totem process retains the empty list | Open a new totem session for the retry. Report the matching activity and exit 0 without another write. Cover both CLI and MCP. |
+| F22 | A write returns 409 but no matching activity exists | Exit 1, preserve the conflict error, and do not retry the write. |
+| F23 | A write returns 409 and an activity with the same times belongs to another sport | Exit 1; do not claim a successful Strength Trainer sync or create another activity. |
